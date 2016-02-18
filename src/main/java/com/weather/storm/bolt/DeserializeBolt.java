@@ -14,6 +14,8 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
 import com.google.gson.Gson;
+import com.weather.storm.env.TopologyConstants;
+import com.weather.storm.object.Precipitation;
 import com.weather.storm.object.Temperature;
 import com.weather.storm.util.CommonUtil;
 
@@ -27,13 +29,28 @@ public class DeserializeBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
         LOG.info("Received : " + tuple.getValue(0).toString());
 
-        for (Object msg : tuple.getValues()) {
-            String message = msg.toString();
-            Temperature temp = jsonConverter.fromJson(message, Temperature.class);
+        String source = tuple.getSourceComponent();
+        try {
+            for (Object msg : tuple.getValues()) {
+                String message = msg.toString();
+                if (source.equalsIgnoreCase(TopologyConstants.SPOUT_TEMPERATURE)) {
+                    Temperature temp = jsonConverter.fromJson(message, Temperature.class);
+                    LOG.info("Deserialized to Temperature: " + temp.toString().replaceAll("\\n", ""));
+                    collector.emit(tuple, new Values(temp));
+                }
+                else if (source.equalsIgnoreCase(TopologyConstants.SPOUT_PRECIPITATION)) {
+                    Precipitation precip = jsonConverter.fromJson(message, Precipitation.class);
+                    LOG.info("Deserialized to Precipitation: " + precip.toString().replaceAll("\\n", ""));
+                    collector.emit(tuple, new Values(precip));
+                }
 
-            LOG.info("Deserialized to Temperature: " + temp.toString().replaceAll("\\n", ""));
-            collector.emit(tuple, new Values(temp));
+            }
         }
+        catch (Exception ex) {
+            LOG.error(ex.getMessage(), ex);
+        }
+
+        collector.ack(tuple);
     }
 
     @SuppressWarnings("rawtypes")

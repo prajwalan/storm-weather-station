@@ -18,10 +18,10 @@ public class WeatherTopology extends BaseTopology {
         initializeKafkaZK();
         TopologyBuilder builder = new TopologyBuilder();
 
-        builder.setSpout(TopologyConstants.SPOUT_WEATHER, //
-                getKafkaSpout(TopologyConstants.TOPIC_WEATHER, TopologyConstants.KAFKA_CLIENT_ID), 1);
+        builder.setSpout(TopologyConstants.SPOUT_TEMPERATURE, //
+                getKafkaSpout(TopologyConstants.TOPIC_TEMPERATURE, TopologyConstants.TEMPERATURE_CLIENT_ID), 1);
         builder.setBolt(TopologyConstants.BOLT_DESERIALIZE, new DeserializeBolt()) //
-                .shuffleGrouping(TopologyConstants.SPOUT_WEATHER);
+                .shuffleGrouping(TopologyConstants.SPOUT_TEMPERATURE);
         builder.setBolt(TopologyConstants.BOLT_STORAGE, new StorageBolt()) //
                 .shuffleGrouping(TopologyConstants.BOLT_DESERIALIZE);
         builder.setBolt(TopologyConstants.BOLT_DISTRIBUTION, new DistributionBolt()) //
