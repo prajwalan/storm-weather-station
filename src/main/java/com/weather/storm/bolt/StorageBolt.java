@@ -6,23 +6,24 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 
+@SuppressWarnings("serial")
 public class StorageBolt extends BaseRichBolt {
 
-    public void execute(Tuple arg0) {
-        // TODO Auto-generated method stub
+    private OutputCollector collector;
+
+    public void execute(Tuple tuple) {
 
     }
 
-    public void prepare(Map arg0, TopologyContext arg1, OutputCollector arg2) {
-        // TODO Auto-generated method stub
-
+    @SuppressWarnings("rawtypes")
+    public void prepare(Map map, TopologyContext context, OutputCollector collector) {
+        this.collector = collector;
     }
 
-    public void declareOutputFields(OutputFieldsDeclarer arg0) {
-        // TODO Auto-generated method stub
-
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declare(new Fields("temperature"));
     }
-
 }
