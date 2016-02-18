@@ -2,7 +2,7 @@ package com.weather.storm;
 
 import com.weather.storm.bolt.DeserializeBolt;
 import com.weather.storm.bolt.DistributionBolt;
-import com.weather.storm.bolt.StatisticsBolt;
+import com.weather.storm.bolt.LocationTempStatsBolt;
 import com.weather.storm.bolt.StorageBolt;
 import com.weather.storm.env.TopologyConstants;
 
@@ -26,7 +26,7 @@ public class WeatherTopology extends BaseTopology {
                 .shuffleGrouping(TopologyConstants.BOLT_DESERIALIZE);
         builder.setBolt(TopologyConstants.BOLT_DISTRIBUTION, new DistributionBolt()) //
                 .shuffleGrouping(TopologyConstants.BOLT_STORAGE);
-        builder.setBolt(TopologyConstants.BOLT_STATISTICS, new StatisticsBolt()) //
+        builder.setBolt(TopologyConstants.BOLT_STATISTICS, new LocationTempStatsBolt()) //
                 .shuffleGrouping(TopologyConstants.BOLT_DISTRIBUTION);
 
         return builder;

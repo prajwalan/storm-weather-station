@@ -10,11 +10,14 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 
 @SuppressWarnings("serial")
-public class StatisticsBolt extends BaseRichBolt {
+public class LocationPrecipitationStatsBolt extends BaseRichBolt {
 
     private OutputCollector collector;
 
     public void execute(Tuple tuple) {
+
+        // -- Precipitation: Location - Year - Month - Average - Max - Min
+        // -- Precipitation: Location - Year - Week - Average - Max - Min
 
     }
 
