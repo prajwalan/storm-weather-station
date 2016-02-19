@@ -5,7 +5,7 @@
     <artifactId>storm-weather-station</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <name>plants-message-processing</name>
+    <name>storm-weather-station</name>
 
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -14,8 +14,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source />
-                    <target />
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -94,6 +94,12 @@
             <artifactId>commons-configuration</artifactId>
             <version>1.10</version>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.9.2</version>
+        </dependency>
+
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>

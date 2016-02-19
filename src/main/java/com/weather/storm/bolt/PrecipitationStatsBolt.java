@@ -15,7 +15,6 @@ public class PrecipitationStatsBolt extends BaseCassandraBolt {
     public void execute(Tuple tuple) {
 
         // -- Precipitation: Location - Year - Month - Average - Max - Min
-        // -- Precipitation: Location - Year - Week - Average - Max - Min
 
     }
 

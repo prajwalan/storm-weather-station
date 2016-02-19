@@ -22,8 +22,8 @@ public class TupleGenerator {
 
         int n = 1000;
         while (n > 0) {
-            int randomLocation = RandomUtils.nextInt(numLocation);
-            int randomStation = RandomUtils.nextInt(numStationPerLocation);
+            int randomLocation = RandomUtils.nextInt(numLocation) + 1;
+            int randomStation = Integer.parseInt("" + randomLocation + (RandomUtils.nextInt(numStationPerLocation) + 1));
 
             float tempMeasurement = CommonUtil.round(RandomUtils.nextFloat() * 20.0f, 2);
             float precipLow = CommonUtil.round(RandomUtils.nextFloat() * 2.0f, 2);

@@ -7,6 +7,7 @@ import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 import com.weather.storm.env.EnvConstant;
 
+@SuppressWarnings("serial")
 @Table(keyspace = EnvConstant.CASSANDRA_KEYSPACE, name = "temperature")
 public class Temperature implements Serializable {
 

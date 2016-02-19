@@ -13,6 +13,7 @@ public class MonthlyStat {
     private int entity;
     private int year;
     private int month;
+    private int count;
     private float max;
     private float min;
     private float average;
@@ -21,12 +22,13 @@ public class MonthlyStat {
 
     }
 
-    public MonthlyStat(int locationid, int entity, int year, int month, float max, float min, float average) {
+    public MonthlyStat(int locationid, int entity, int year, int month, int count, float max, float min, float average) {
         super();
         this.locationid = locationid;
         this.entity = entity;
         this.year = year;
         this.month = month;
+        this.count = count;
         this.max = max;
         this.min = min;
         this.average = average;
@@ -62,6 +64,14 @@ public class MonthlyStat {
 
     public void setMonth(int month) {
         this.month = month;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     public float getMax() {

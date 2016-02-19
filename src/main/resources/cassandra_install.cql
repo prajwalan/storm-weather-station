@@ -2,7 +2,6 @@ create keyspace if not exists weather_station_keyspace with replication = {'clas
 
 use weather_station_keyspace;
 drop table if exists monthlystat;
-drop table if exists weeklystat;
 drop table if exists temperature;
 drop table if exists precipitation;
 
@@ -28,19 +27,9 @@ create table monthlystat(
     entity int,
     year int,
     month int,
+    count int,
 	max float,
 	min float,
 	average float,
     PRIMARY KEY ((locationid, entity), year, month)
 )with clustering order by (year desc, month desc);
-
-create table weeklystat(
-    locationid int,
-    entity int,
-    year int,
-    week int,
-	max float,
-	min float,
-	average float,
-    PRIMARY KEY ((locationid, entity), year, week)
-)with clustering order by (year desc, week desc);

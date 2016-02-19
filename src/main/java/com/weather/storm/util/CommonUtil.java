@@ -26,4 +26,9 @@ public class CommonUtil {
         bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
         return bd.floatValue();
     }
+
+    public static float getRunningMean(float oldMean, float newValue, long count) {
+        return count == 0 ? 0.0f : (float) round(((1.0f * oldMean) * (count - 1)) / count + (newValue / count), 2);
+    }
+
 }
