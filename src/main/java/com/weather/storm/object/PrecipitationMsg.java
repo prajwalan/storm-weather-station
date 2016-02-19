@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 @SuppressWarnings("serial")
-public class Precipitation extends BaseEntity {
+public class PrecipitationMsg extends BaseEntity {
 
     @SerializedName("Low")
     @Expose
@@ -14,7 +14,7 @@ public class Precipitation extends BaseEntity {
     @Expose
     private float high;
 
-    public Precipitation(int locationId, int stationId, long timestamp, float low, float high) {
+    public PrecipitationMsg(int locationId, int stationId, long timestamp, float low, float high) {
         super(locationId, stationId, timestamp);
         this.low = low;
         this.high = high;

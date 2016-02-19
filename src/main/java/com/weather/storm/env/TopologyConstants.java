@@ -13,6 +13,10 @@ public class TopologyConstants {
     public static final String BOLT_DESERIALIZE = "bolt_deserialize";
     public static final String BOLT_STORAGE = "bolt_storage";
     public static final String BOLT_DISTRIBUTION = "bolt_distribution";
-    public static final String BOLT_STATISTICS = "bolt_statistics";
+    public static final String BOLT_TEMPERATURE_STATISTICS = "bolt_temperature_stats";
+    public static final String BOLT_PRECIPITATION_STATISTICS = "bolt_precipitation_stats";
+
+    public static final String STREAM_TEMPERATURE = "stream_temperature";
+    public static final String STREAM_PRECIPITATION = "stream_precipitation";
 
 }
