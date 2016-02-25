@@ -1,5 +1,8 @@
 package com.weather.storm.cassandra.table;
 
+import java.util.List;
+
+import com.datastax.driver.mapping.annotations.Frozen;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 import com.weather.storm.env.EnvConstant;
@@ -14,15 +17,18 @@ public class MonthlyStat {
     private int year;
     private int month;
     private int count;
-    private float max;
-    private float min;
+    @Frozen("list <frozen<Milestone>>")
+    private List<Milestone> max;
+    @Frozen("list <frozen<Milestone>>")
+    private List<Milestone> min;
     private float average;
 
     public MonthlyStat() {
 
     }
 
-    public MonthlyStat(int locationid, int entity, int year, int month, int count, float max, float min, float average) {
+    public MonthlyStat(int locationid, int entity, int year, int month, int count, List<Milestone> max, List<Milestone> min,
+            float average) {
         super();
         this.locationid = locationid;
         this.entity = entity;
@@ -74,19 +80,19 @@ public class MonthlyStat {
         this.count = count;
     }
 
-    public float getMax() {
+    public List<Milestone> getMax() {
         return max;
     }
 
-    public void setMax(float max) {
+    public void setMax(List<Milestone> max) {
         this.max = max;
     }
 
-    public float getMin() {
+    public List<Milestone> getMin() {
         return min;
     }
 
-    public void setMin(float min) {
+    public void setMin(List<Milestone> min) {
         this.min = min;
     }
 
@@ -96,6 +102,11 @@ public class MonthlyStat {
 
     public void setAverage(float average) {
         this.average = average;
+    }
+
+    @Override
+    public String toString() {
+        return "Location: " + locationid + " year: " + year + " month: " + month + " max: " + max + " min: " + min;
     }
 
 }

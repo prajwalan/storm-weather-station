@@ -1,10 +1,13 @@
 package com.weather.storm.cassandra.accessor;
 
+import java.util.List;
+
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.mapping.Result;
 import com.datastax.driver.mapping.annotations.Accessor;
 import com.datastax.driver.mapping.annotations.Param;
 import com.datastax.driver.mapping.annotations.Query;
+import com.weather.storm.cassandra.table.Milestone;
 import com.weather.storm.cassandra.table.MonthlyStat;
 
 @Accessor
@@ -28,7 +31,8 @@ public interface MonthlyStatAccessor {
             @Param("month") int month, //
             @Param("count") int count, //
             @Param("average") float average, //
-            @Param("max") float max, //
-            @Param("min") float min //
+            @Param("max") List<Milestone> max, //
+            @Param("min") List<Milestone> min //
     );
+
 }
