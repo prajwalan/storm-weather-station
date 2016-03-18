@@ -38,6 +38,7 @@ Storm message processing system looks like below:
 
 #### Data structure
 Data structure in Cassandra involves two tables, one for storing the temperatures and other for aggregates.
+A cql file for installing the keyspace and tables is provided in the *resources* folder.
 The structure looks like below:
 ```sh
 create table weather_station_keyspace.temperature (
