@@ -1,9 +1,8 @@
 # storm-weather-station
 
-### Introduction
-Consider a weather station system deployed across several locations. Each location will have a numeric id and contain several stations under it. Each of these stations will also have a numeric id.
+Consider a weather station system deployed across several locations. Each location will have a numeric id and contain several stations under it. Each of these stations will also have a numeric id. We need a system that can accept large number of temperature readings from several hundreds of such locations. The system should also provide real time analytics and possibly database table scanning should be avoided.
 
-This sample implementation retrieves temperatures measured by different stations in different locations and stores them in Cassandra. Along the way, it also calculates basic statistical monthly aggregates for each station.
+This sample implementation attempts to address above issue. It retrieves temperatures measured by different stations in different locations and stores them in Cassandra. Along the way, it also calculates basic statistical monthly aggregates for each station.
 
 ### System setup
 The system consists of following components. The IP address for hosts and ports are in EvnConstant class. Ideally, you would read it from a config file in a real application. But here it is just a demo.
@@ -34,7 +33,7 @@ Format of JSON message published by stations:
 #### Storm topology
 Storm message processing system looks like below:
 
-> Kafka   ===>  Kafka Spout -> Deserialize Bolt -> Storage Bolt -> Statistics Calculation Bolt
+> Kafka   ===>  [Kafka Spout] -> (Deserialize Bolt) -> (Storage Bolt) -> (Statistics Calculation Bolt)
 
 
 #### Data structure
@@ -72,4 +71,4 @@ create table weather_station_keyspace.monthlystat(
 The TupleGenerator class in *com.weather.publisher* package generates dummy temperature readings and publishes to the Kafka topic for testing purpose.
 
 #### Disclaimer
-This code is here solely for demo purpose and is not meant to be used directly in any kind of production. It demonstrates concepts such as queueing, real time message processing and analytics and NoSQL database design. 
+This code is here solely for demo purpose and is not meant to be used directly in any kind of production. It demonstrates concepts such as queueing, real time message processing and analytics and NoSQL database design. But the code itself may not be optimized. 
