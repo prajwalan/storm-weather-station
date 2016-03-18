@@ -16,6 +16,6 @@ public interface TemperatureAccessor {
             @Param("locationid") int locationid, //
             @Param("stationid") int stationid, //
             @Param("measuredtime") Date measuredtime, //
-            @Param("measurement") float measurement //
+            @Param("measurement") String measurement //
     );
 }

@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datastax.driver.mapping.Mapper;
 import com.weather.storm.cassandra.accessor.MonthlyStatAccessor;
-import com.weather.storm.cassandra.table.Milestone;
 import com.weather.storm.cassandra.table.MonthlyStat;
 import com.weather.storm.cassandra.table.Temperature;
 import com.weather.storm.util.CommonUtil;
@@ -47,7 +46,7 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
     @Override
     public void execute(Tuple tuple) {
 
-        // -- Temperature: Location - Year - Month - Average - Max - Min
+        // -- Temperature: Location - Year - Month - Average - Count - Max - Min
 
         try {
             for (Object obj : tuple.getValues()) {
@@ -59,8 +58,7 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
                     int month = date.getMonthOfYear();
 
                     // -- Get the current values
-                    // -- Problem with running get too often is that there could be issues with buffer in cassandra driver
-
+                    // -- Problem with running get too often is that there could be issues with buffer in Cassandra driver
                     MonthlyStat monthlyStat = null;
 
                     String key = "" + temperature.getLocationid() + MEASUREMENT_ENTITY.TEMPERATURE.value + year + month;
@@ -73,37 +71,27 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
                     }
 
                     if (monthlyStat == null) {
-                        Milestone milestone = new Milestone(temperature.getStationid(), temperature.getMeasuredtime(),
-                                temperature.getMeasurement());
                         monthlyStat = new MonthlyStat(temperature.getLocationid(), MEASUREMENT_ENTITY.TEMPERATURE.value, year,
-                                month, 1, getMilestoneList(milestone), getMilestoneList(milestone), temperature.getMeasurement());
+                                month, temperature.getMeasurement(), 1, //
+                                temperature.getMeasurement(), temperature.getStationid(), date.toDate(), //
+                                temperature.getMeasurement(), temperature.getStationid(), date.toDate());
                     }
                     else {
-                        float newAverage = CommonUtil.getRunningMean(monthlyStat.getAverage(), temperature.getMeasurement(),
-                                monthlyStat.getCount() + 1);
-
-                        Milestone newMax = null;
-                        if (monthlyStat.getMax().get(0).getValue() > temperature.getMeasurement()) {
-                            newMax = monthlyStat.getMax().get(0);
-                        }
-                        else {
-                            newMax = new Milestone(temperature.getStationid(), temperature.getMeasuredtime(),
-                                    temperature.getMeasurement());
-                        }
-
-                        Milestone newMin = null;
-                        if (monthlyStat.getMin().get(0).getValue() < temperature.getMeasurement()) {
-                            newMin = monthlyStat.getMin().get(0);
-                        }
-                        else {
-                            newMin = new Milestone(temperature.getStationid(), temperature.getMeasuredtime(),
-                                    temperature.getMeasurement());
-                        }
+                        float newAverage = CommonUtil.getRunningMean(monthlyStat.getAverageNumeric(),
+                                temperature.getMeasurementNumeric(), monthlyStat.getCount() + 1);
 
                         monthlyStat.setCount(monthlyStat.getCount() + 1);
-                        monthlyStat.setAverage(newAverage);
-                        monthlyStat.setMax(getMilestoneList(newMax));
-                        monthlyStat.setMin(getMilestoneList(newMax));
+                        monthlyStat.setAverageNumeric(newAverage);
+                        if (temperature.getMeasurementNumeric() > monthlyStat.getMaxNumeric()) {
+                            monthlyStat.setMax(temperature.getMeasurement());
+                            monthlyStat.setMaxstationid(temperature.getStationid());
+                            monthlyStat.setMaxtime(temperature.getMeasuredtime());
+                        }
+                        if (temperature.getMeasurementNumeric() < monthlyStat.getMinNumeric()) {
+                            monthlyStat.setMin(temperature.getMeasurement());
+                            monthlyStat.setMinstationid(temperature.getStationid());
+                            monthlyStat.setMintime(temperature.getMeasuredtime());
+                        }
                     }
 
                     monthlyStat.setLocationid(temperature.getLocationid());
@@ -111,16 +99,10 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
                     monthlyStat.setYear(year);
                     monthlyStat.setMonth(month);
 
-                    LOG.warn(monthlyStat.toString());
-                    // monthlyStatMapper.save(monthlyStat);
-                    // monthlyStatAccessor.updateMax1(monthlyStat.getMax().getStationid(), monthlyStat.getMax().getMeasuredtime(),
-                    // monthlyStat.getMax().getValue(), monthlyStat.getLocationid(), monthlyStat.getEntity(), year, month);
-                    // monthlyStatAccessor.updateMax(monthlyStat.getMax(), monthlyStat.getLocationid(),
-                    // monthlyStat.getEntity(),
-                    // year, month);
-
-                    monthlyStatAccessor.add(temperature.getLocationid(), MEASUREMENT_ENTITY.TEMPERATURE.value, year, month,
-                            monthlyStat.getCount(), monthlyStat.getAverage(), monthlyStat.getMax(), monthlyStat.getMin());
+                    monthlyStatAccessor.add(temperature.getLocationid(), MEASUREMENT_ENTITY.TEMPERATURE.value, year, month, //
+                            monthlyStat.getAverage(), monthlyStat.getCount(), //
+                            monthlyStat.getMax(), monthlyStat.getMaxstationid(), monthlyStat.getMaxtime(), //
+                            monthlyStat.getMin(), monthlyStat.getMinstationid(), monthlyStat.getMintime());
 
                     tempCache.put(key, monthlyStat);
                 }
@@ -136,12 +118,6 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
 
         collector.ack(tuple);
 
-    }
-
-    private List<Milestone> getMilestoneList(Milestone milestone) {
-        List<Milestone> list = new ArrayList<>();
-        list.add(milestone);
-        return list;
     }
 
     @Override

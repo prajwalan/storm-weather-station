@@ -8,18 +8,18 @@ public class TemperatureMsg extends BaseEntity {
 
     @SerializedName("Measurement")
     @Expose
-    private float measurement;
+    private String measurement;
 
-    public TemperatureMsg(int locationId, int stationId, long timestamp, float measurement) {
+    public TemperatureMsg(int locationId, int stationId, long timestamp, String measurement) {
         super(locationId, stationId, timestamp);
         this.measurement = measurement;
     }
 
-    public float getMeasurement() {
+    public String getMeasurement() {
         return measurement;
     }
 
-    public void setMeasurement(float measurement) {
+    public void setMeasurement(String measurement) {
         this.measurement = measurement;
     }
 

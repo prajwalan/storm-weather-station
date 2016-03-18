@@ -7,11 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.weather.storm.cassandra.accessor.PrecipitationAccessor;
 import com.weather.storm.cassandra.accessor.TemperatureAccessor;
-import com.weather.storm.cassandra.table.Precipitation;
 import com.weather.storm.cassandra.table.Temperature;
-import com.weather.storm.object.PrecipitationMsg;
 import com.weather.storm.object.TemperatureMsg;
 import com.weather.storm.util.CommonUtil;
 
@@ -28,7 +25,6 @@ public class StorageBolt extends BaseCassandraBolt {
     private static final Logger LOG = LoggerFactory.getLogger(StorageBolt.class);
 
     private TemperatureAccessor temperatureAccessor;
-    private PrecipitationAccessor precipitationAccessor;
 
     private Gson jsonConverter;
 
@@ -42,8 +38,6 @@ public class StorageBolt extends BaseCassandraBolt {
         super.prepare(stormConf, context, collector);
 
         temperatureAccessor = manager.createAccessor(TemperatureAccessor.class);
-        precipitationAccessor = manager.createAccessor(PrecipitationAccessor.class);
-
         jsonConverter = CommonUtil.createJsonConvertor();
     }
 
@@ -64,18 +58,6 @@ public class StorageBolt extends BaseCassandraBolt {
 
                     LOG.info("Saved and emitting temperature: " + jsonConverter.toJson(temperature).replaceAll("\n", ""));
                     collector.emit(tuple, new Values(temperature));
-                }
-                else if (msg instanceof PrecipitationMsg) {
-                    PrecipitationMsg precipMsg = (PrecipitationMsg) msg;
-                    Date measuredtime = new Date(precipMsg.getTimestamp());
-                    Precipitation precipitation = new Precipitation(precipMsg.getLocationId(), precipMsg.getStationId(),
-                            measuredtime, precipMsg.getLow(), precipMsg.getHigh());
-
-                    precipitationAccessor.add(precipMsg.getLocationId(), precipMsg.getStationId(), measuredtime,
-                            precipMsg.getLow(), precipMsg.getHigh());
-
-                    LOG.info("Saved and emitting precipitation: " + jsonConverter.toJson(precipitation).replaceAll("\n", ""));
-                    collector.emit(tuple, new Values(precipitation));
                 }
 
             }

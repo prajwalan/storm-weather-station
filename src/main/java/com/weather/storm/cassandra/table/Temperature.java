@@ -16,13 +16,13 @@ public class Temperature implements Serializable {
     @PartitionKey(1)
     private int stationid;
     private Date measuredtime;
-    private float measurement;
+    private String measurement;
 
     public Temperature() {
 
     }
 
-    public Temperature(int locationid, int stationid, Date measuredtime, float measurement) {
+    public Temperature(int locationid, int stationid, Date measuredtime, String measurement) {
         super();
         this.locationid = locationid;
         this.stationid = stationid;
@@ -54,11 +54,15 @@ public class Temperature implements Serializable {
         this.measuredtime = measuredtime;
     }
 
-    public float getMeasurement() {
+    public String getMeasurement() {
         return measurement;
     }
 
-    public void setMeasurement(float measurement) {
+    public float getMeasurementNumeric() {
+        return Float.parseFloat(measurement);
+    }
+
+    public void setMeasurement(String measurement) {
         this.measurement = measurement;
     }
 

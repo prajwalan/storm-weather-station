@@ -1,8 +1,6 @@
 package com.weather.storm;
 
 import com.weather.storm.bolt.DeserializeBolt;
-import com.weather.storm.bolt.DistributionBolt;
-import com.weather.storm.bolt.PrecipitationStatsBolt;
 import com.weather.storm.bolt.TemperatureStatsBolt;
 import com.weather.storm.bolt.StorageBolt;
 import com.weather.storm.env.EnvConstant;
@@ -27,15 +25,9 @@ public class WeatherTopology extends BaseTopology {
         builder.setBolt(TopologyConstants.BOLT_STORAGE,
                 new StorageBolt(EnvConstant.CASSANDRA_HOST, EnvConstant.CASSANDRA_PORT, EnvConstant.CASSANDRA_KEYSPACE)) //
                 .shuffleGrouping(TopologyConstants.BOLT_DESERIALIZE);
-        builder.setBolt(TopologyConstants.BOLT_DISTRIBUTION, new DistributionBolt()) //
-                .shuffleGrouping(TopologyConstants.BOLT_STORAGE);
         builder.setBolt(TopologyConstants.BOLT_TEMPERATURE_STATISTICS,
                 new TemperatureStatsBolt(EnvConstant.CASSANDRA_HOST, EnvConstant.CASSANDRA_PORT, EnvConstant.CASSANDRA_KEYSPACE)) //
-                .shuffleGrouping(TopologyConstants.BOLT_DISTRIBUTION, TopologyConstants.STREAM_TEMPERATURE);
-        builder.setBolt(TopologyConstants.BOLT_PRECIPITATION_STATISTICS,
-                new PrecipitationStatsBolt(EnvConstant.CASSANDRA_HOST, EnvConstant.CASSANDRA_PORT,
-                        EnvConstant.CASSANDRA_KEYSPACE)) //
-                .shuffleGrouping(TopologyConstants.BOLT_DISTRIBUTION, TopologyConstants.STREAM_PRECIPITATION);
+                .shuffleGrouping(TopologyConstants.BOLT_STORAGE);
 
         return builder;
     }

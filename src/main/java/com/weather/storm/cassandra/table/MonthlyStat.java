@@ -1,11 +1,11 @@
 package com.weather.storm.cassandra.table;
 
-import java.util.List;
+import java.util.Date;
 
-import com.datastax.driver.mapping.annotations.Frozen;
 import com.datastax.driver.mapping.annotations.PartitionKey;
 import com.datastax.driver.mapping.annotations.Table;
 import com.weather.storm.env.EnvConstant;
+import com.weather.storm.util.CommonUtil;
 
 @Table(keyspace = EnvConstant.CASSANDRA_KEYSPACE, name = "monthlystat")
 public class MonthlyStat {
@@ -16,28 +16,37 @@ public class MonthlyStat {
     private int entity;
     private int year;
     private int month;
+    private String average;
     private int count;
-    @Frozen("list <frozen<Milestone>>")
-    private List<Milestone> max;
-    @Frozen("list <frozen<Milestone>>")
-    private List<Milestone> min;
-    private float average;
+    private String max;
+    private int maxstationid;
+    private Date maxtime;
+    private String min;
+    private int minstationid;
+    private Date mintime;
 
     public MonthlyStat() {
-
+        count = 0;
+        average = "0.0";
+        max = "0.0";
+        min = "0.0";
     }
 
-    public MonthlyStat(int locationid, int entity, int year, int month, int count, List<Milestone> max, List<Milestone> min,
-            float average) {
+    public MonthlyStat(int locationid, int entity, int year, int month, String average, int count, String max, int maxstationid,
+            Date maxtime, String min, int minstationid, Date mintime) {
         super();
         this.locationid = locationid;
         this.entity = entity;
         this.year = year;
         this.month = month;
+        this.average = average;
         this.count = count;
         this.max = max;
+        this.maxstationid = maxstationid;
+        this.maxtime = maxtime;
         this.min = min;
-        this.average = average;
+        this.minstationid = minstationid;
+        this.mintime = mintime;
     }
 
     public int getLocationid() {
@@ -80,28 +89,84 @@ public class MonthlyStat {
         this.count = count;
     }
 
-    public List<Milestone> getMax() {
-        return max;
-    }
-
-    public void setMax(List<Milestone> max) {
-        this.max = max;
-    }
-
-    public List<Milestone> getMin() {
-        return min;
-    }
-
-    public void setMin(List<Milestone> min) {
-        this.min = min;
-    }
-
-    public float getAverage() {
+    public String getAverage() {
         return average;
     }
 
-    public void setAverage(float average) {
+    public float getAverageNumeric() {
+        return Float.parseFloat(average);
+    }
+
+    public void setAverage(String average) {
         this.average = average;
+    }
+
+    public void setAverageNumeric(float average) {
+        this.average = "" + CommonUtil.round(average, 2);
+    }
+
+    public String getMax() {
+        return max;
+    }
+
+    public float getMaxNumeric() {
+        return Float.parseFloat(max);
+    }
+
+    public void setMax(String max) {
+        this.max = max;
+    }
+
+    public void setMaxNumeric(float max) {
+        this.max = "" + CommonUtil.round(max, 2);
+    }
+
+    public int getMaxstationid() {
+        return maxstationid;
+    }
+
+    public void setMaxstationid(int maxstationid) {
+        this.maxstationid = maxstationid;
+    }
+
+    public Date getMaxtime() {
+        return maxtime;
+    }
+
+    public void setMaxtime(Date maxtime) {
+        this.maxtime = maxtime;
+    }
+
+    public String getMin() {
+        return min;
+    }
+
+    public float getMinNumeric() {
+        return Float.parseFloat(min);
+    }
+
+    public void setMin(String min) {
+        this.min = min;
+    }
+
+    public void setMinNumeric(float min) {
+        this.min = "" + CommonUtil.round(min, 2);
+    }
+
+    public int getMinstationid() {
+        return minstationid;
+    }
+
+    public void setMinstationid(int minstationid) {
+        this.minstationid = minstationid;
+    }
+
+    public Date getMintime() {
+        return mintime;
+    }
+
+    public void setMintime(Date mintime) {
+        this.mintime = mintime;
     }
 
     @Override

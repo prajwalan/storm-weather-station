@@ -15,7 +15,6 @@ import backtype.storm.tuple.Values;
 
 import com.google.gson.Gson;
 import com.weather.storm.env.TopologyConstants;
-import com.weather.storm.object.PrecipitationMsg;
 import com.weather.storm.object.TemperatureMsg;
 import com.weather.storm.util.CommonUtil;
 
@@ -38,11 +37,6 @@ public class DeserializeBolt extends BaseRichBolt {
                     TemperatureMsg temp = jsonConverter.fromJson(message, TemperatureMsg.class);
                     LOG.info("Deserialized to Temperature: " + temp.toString().replaceAll("\\n", ""));
                     collector.emit(tuple, new Values(temp));
-                }
-                else if (source.equalsIgnoreCase(TopologyConstants.SPOUT_PRECIPITATION)) {
-                    PrecipitationMsg precip = jsonConverter.fromJson(message, PrecipitationMsg.class);
-                    LOG.info("Deserialized to Precipitation: " + precip.toString().replaceAll("\\n", ""));
-                    collector.emit(tuple, new Values(precip));
                 }
 
             }
