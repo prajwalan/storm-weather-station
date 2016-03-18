@@ -69,7 +69,7 @@ create table weather_station_keyspace.monthlystat(
 ```
 
 #### Tuple Generator
-The TupleGenerator class in com.weather.publisher package generates dummy temperature readings and publishes to the Kafka topic for testing purpose.
+The TupleGenerator class in *com.weather.publisher* package generates dummy temperature readings and publishes to the Kafka topic for testing purpose.
 
 #### Disclaimer
 This code is here solely for demo purpose and is not meant to be used directly in any kind of production. It demonstrates concepts such as queueing, real time message processing and analytics and NoSQL database design. 
