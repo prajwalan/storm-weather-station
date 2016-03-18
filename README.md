@@ -20,7 +20,9 @@ The system consists of following components. The IP address for hosts and ports 
 2. The Kafka spout in storm topology reads from the queue and passes to storage bolt for storing to Cassandra.
 3. The message is further passed to statistics calculation bolt that calculates the monthly aggregates for each location.
 
-#### Kafka Message format
+#### Kafka Message
+All the messages are published to and read from the topic "temperatureseries". It is declared in TopologyConstants class.
+
 Format of JSON message published by stations:
 > {
 >   "Measurement": "17.43",
@@ -66,3 +68,8 @@ create table weather_station_keyspace.monthlystat(
 )with clustering order by (year desc, month desc);
 ```
 
+#### Tuple Generator
+The TupleGenerator class in com.weather.publisher package generates dummy temperature readings and publishes to the Kafka topic for testing purpose.
+
+#### Disclaimer
+This code is here solely for demo purpose and is not meant to be used directly in any kind of production. It demonstrates concepts such as queueing, real time message processing and analytics and NoSQL database design. 
