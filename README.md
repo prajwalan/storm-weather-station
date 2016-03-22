@@ -6,6 +6,14 @@ This sample implementation attempts to address above issue. It retrieves tempera
 
 The project highlights concepts such as queueing (with [Kafka](http://kafka.apache.org/)), real time message processing and analytics (with [Storm](http://storm.apache.org/)) and NoSQL database ([Cassandra](http://cassandra.apache.org/)) design.
 
+### Building and running
+The project using Maven. So things should be easy and straight-forward.
+
+| Command | Description |
+| ------ | -------- |
+| mvn clean eclipse:eclipse | Command to generate project files for importing in Eclipse  |
+| mvn clean package | Command to generate the output jar file  |
+
 ### System setup
 The system consists of following components. The IP address for hosts and ports are in EvnConstant class. Ideally, you would read it from a config file in a real application. But here it is just a demo.
 
