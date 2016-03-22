@@ -7,7 +7,7 @@ This sample implementation attempts to address above issue. It retrieves tempera
 The project highlights concepts such as queueing (with [Kafka](http://kafka.apache.org/)), real time message processing and analytics (with [Storm](http://storm.apache.org/)) and NoSQL database ([Cassandra](http://cassandra.apache.org/)) design.
 
 ### Building and running
-The project using Maven. So things should be easy and straight-forward.
+The project uses Maven. So things should be easy and straight-forward.
 
 | Command | Description |
 | ------ | -------- |
