@@ -171,7 +171,8 @@ public class MonthlyStat {
 
     @Override
     public String toString() {
-        return "Location: " + locationid + " year: " + year + " month: " + month + " max: " + max + " min: " + min;
+        return "Location: " + locationid + " year: " + year + " month: " + month + " avg: " + average + " max: " + max + " min: "
+                + min;
     }
 
 }

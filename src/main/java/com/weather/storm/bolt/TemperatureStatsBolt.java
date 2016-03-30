@@ -18,6 +18,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
 
 @SuppressWarnings("serial")
 public class TemperatureStatsBolt extends BaseCassandraBolt {
@@ -36,8 +37,18 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         super.prepare(stormConf, context, collector);
 
-        monthlyStatAccessor = manager.createAccessor(MonthlyStatAccessor.class);
+        initAccessors();
         tempCache = new HashMap<>();
+    }
+
+    private void initAccessors() {
+        if (manager != null) {
+            monthlyStatAccessor = manager.createAccessor(MonthlyStatAccessor.class);
+        }
+    }
+
+    public HashMap<String, MonthlyStat> getTempCache() {
+        return tempCache;
     }
 
     @Override
@@ -62,21 +73,20 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
                         monthlyStat = tempCache.get(key);
                     }
                     else {
-                        monthlyStat = monthlyStatAccessor.get(temperature.getLocationid(), MEASUREMENT_ENTITY.TEMPERATURE.value,
-                                date.getYear(), date.getMonthOfYear());
+                        monthlyStat = getFromDatabase(temperature.getLocationid(), date.getYear(), date.getMonthOfYear());
                     }
 
                     // -- Calculate the statistics
-                    calculateMonthlyStats(temperature, monthlyStat);
+                    monthlyStat = calculateMonthlyStats(temperature, monthlyStat);
 
-                    monthlyStatAccessor.add(temperature.getLocationid(), MEASUREMENT_ENTITY.TEMPERATURE.value, date.getYear(),
-                            date.getMonthOfYear(), //
-                            monthlyStat.getAverage(), monthlyStat.getCount(), //
-                            monthlyStat.getMax(), monthlyStat.getMaxstationid(), monthlyStat.getMaxtime(), //
-                            monthlyStat.getMin(), monthlyStat.getMinstationid(), monthlyStat.getMintime());
+                    // -- Save to database
+                    storeInDatabase(temperature, monthlyStat);
 
                     // -- Add to the temporary cache
                     tempCache.put(key, monthlyStat);
+
+                    System.out.println("Emitting: " + monthlyStat);
+                    collector.emit(tuple, new Values(monthlyStat));
                 }
                 else {
                     LOG.warn("Non temperature message received");
@@ -89,11 +99,31 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
         }
 
         collector.ack(tuple);
+    }
 
+    public MonthlyStat getFromDatabase(int locationid, int year, int month) {
+        if (monthlyStatAccessor == null) {
+            return null;
+        }
+
+        return monthlyStatAccessor.get(locationid, MEASUREMENT_ENTITY.TEMPERATURE.value, year, month);
+    }
+
+    public void storeInDatabase(Temperature temperature, MonthlyStat monthlyStat) {
+
+        if (monthlyStatAccessor == null) {
+            return;
+        }
+
+        DateTime date = new DateTime(temperature.getMeasuredtime());
+        monthlyStatAccessor.add(temperature.getLocationid(), MEASUREMENT_ENTITY.TEMPERATURE.value, date.getYear(),
+                date.getMonthOfYear(), //
+                monthlyStat.getAverage(), monthlyStat.getCount(), //
+                monthlyStat.getMax(), monthlyStat.getMaxstationid(), monthlyStat.getMaxtime(), //
+                monthlyStat.getMin(), monthlyStat.getMinstationid(), monthlyStat.getMintime());
     }
 
     public MonthlyStat calculateMonthlyStats(Temperature temperature, MonthlyStat monthlyStat) {
-
         DateTime date = new DateTime(temperature.getMeasuredtime());
         int year = date.getYear();
         int month = date.getMonthOfYear();
@@ -132,6 +162,6 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("temperature"));
+        declarer.declare(new Fields("statistics"));
     }
 }

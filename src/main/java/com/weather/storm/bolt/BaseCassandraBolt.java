@@ -2,11 +2,12 @@ package com.weather.storm.bolt;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.QueryOptions;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.mapping.MappingManager;
-
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.base.BaseRichBolt;
@@ -30,13 +31,16 @@ public abstract class BaseCassandraBolt extends BaseRichBolt {
         this.keyspace = keyspace;
     }
 
-    private void initialize() {
+    protected void initialize() {
         QueryOptions options = new QueryOptions();
         options.setFetchSize(5000);
-        cluster = Cluster.builder().addContactPoint(host).withPort(port).withQueryOptions(options).build();
-        cassandraSession = cluster.connect(keyspace);
 
-        manager = new MappingManager(cassandraSession);
+        if (!StringUtils.isEmpty(host)) {
+            cluster = Cluster.builder().addContactPoint(host).withPort(port).withQueryOptions(options).build();
+            cassandraSession = cluster.connect(keyspace);
+
+            manager = new MappingManager(cassandraSession);
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -57,5 +61,4 @@ public abstract class BaseCassandraBolt extends BaseRichBolt {
         }
         super.cleanup();
     }
-
 }

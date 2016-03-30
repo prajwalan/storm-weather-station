@@ -35,7 +35,7 @@ public class DeserializeBolt extends BaseRichBolt {
                 String message = msg.toString();
                 if (source.equalsIgnoreCase(TopologyConstants.SPOUT_TEMPERATURE)) {
                     TemperatureMsg temp = jsonConverter.fromJson(message, TemperatureMsg.class);
-                    LOG.info("Deserialized to Temperature: " + temp.toString().replaceAll("\\n", ""));
+                    LOG.info("Deserialized to Temperature: " + temp.toString().replaceAll("\n", ""));
                     collector.emit(tuple, new Values(temp));
                 }
 

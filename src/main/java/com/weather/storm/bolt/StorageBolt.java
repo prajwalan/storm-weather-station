@@ -37,8 +37,14 @@ public class StorageBolt extends BaseCassandraBolt {
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         super.prepare(stormConf, context, collector);
 
-        temperatureAccessor = manager.createAccessor(TemperatureAccessor.class);
+        initAccessors();
         jsonConverter = CommonUtil.createJsonConvertor();
+    }
+
+    private void initAccessors() {
+        if (manager != null) {
+            temperatureAccessor = manager.createAccessor(TemperatureAccessor.class);
+        }
     }
 
     @Override
@@ -49,13 +55,10 @@ public class StorageBolt extends BaseCassandraBolt {
 
                 if (msg instanceof TemperatureMsg) {
                     TemperatureMsg tempMsg = (TemperatureMsg) msg;
-                    Date measuredtime = new Date(tempMsg.getTimestamp());
-                    Temperature temperature = new Temperature(tempMsg.getLocationId(), tempMsg.getStationId(), measuredtime,
-                            tempMsg.getMeasurement());
+                    storeInDatabase(tempMsg);
 
-                    temperatureAccessor.add(tempMsg.getLocationId(), tempMsg.getStationId(), measuredtime,
-                            tempMsg.getMeasurement());
-
+                    Temperature temperature = new Temperature(tempMsg.getLocationId(), tempMsg.getStationId(),
+                            new Date(tempMsg.getTimestamp()), tempMsg.getMeasurement());
                     LOG.info("Saved and emitting temperature: " + jsonConverter.toJson(temperature).replaceAll("\n", ""));
                     collector.emit(tuple, new Values(temperature));
                 }
@@ -67,6 +70,13 @@ public class StorageBolt extends BaseCassandraBolt {
         }
 
         collector.ack(tuple);
+    }
+
+    public void storeInDatabase(TemperatureMsg tempMsg) {
+        if (temperatureAccessor != null) {
+            temperatureAccessor.add(tempMsg.getLocationId(), tempMsg.getStationId(), new Date(tempMsg.getTimestamp()),
+                    tempMsg.getMeasurement());
+        }
     }
 
     @Override
