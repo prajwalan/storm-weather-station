@@ -78,8 +78,6 @@ public class KafkaPublisher {
     }
 
     public void closePublisher() {
-        if (kafkaProducer != null) {
-            kafkaProducer.close();
-        }
+        kafkaProducer.close();
     }
 }

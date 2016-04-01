@@ -7,6 +7,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.weather.storm.bolt.utils.AccessorUtil;
+import com.weather.storm.bolt.utils.TemperatureStatsBoltUtil;
 import com.weather.storm.cassandra.accessor.MonthlyStatAccessor;
 import com.weather.storm.cassandra.table.MonthlyStat;
 import com.weather.storm.cassandra.table.Temperature;
@@ -42,9 +44,7 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
     }
 
     private void initAccessors() {
-        if (manager != null) {
-            monthlyStatAccessor = manager.createAccessor(MonthlyStatAccessor.class);
-        }
+        monthlyStatAccessor = AccessorUtil.createMonthlyStatAccessor(cassandraConnObject.manager);
     }
 
     public HashMap<String, MonthlyStat> getTempCache() {
@@ -73,19 +73,19 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
                         monthlyStat = tempCache.get(key);
                     }
                     else {
-                        monthlyStat = getFromDatabase(temperature.getLocationid(), date.getYear(), date.getMonthOfYear());
+                        monthlyStat = TemperatureStatsBoltUtil.getFromDatabase(monthlyStatAccessor, temperature.getLocationid(),
+                                date.getYear(), date.getMonthOfYear());
                     }
 
                     // -- Calculate the statistics
                     monthlyStat = calculateMonthlyStats(temperature, monthlyStat);
 
                     // -- Save to database
-                    storeInDatabase(temperature, monthlyStat);
+                    TemperatureStatsBoltUtil.storeInDatabase(monthlyStatAccessor, temperature, monthlyStat);
 
                     // -- Add to the temporary cache
                     tempCache.put(key, monthlyStat);
 
-                    System.out.println("Emitting: " + monthlyStat);
                     collector.emit(tuple, new Values(monthlyStat));
                 }
                 else {
@@ -99,28 +99,6 @@ public class TemperatureStatsBolt extends BaseCassandraBolt {
         }
 
         collector.ack(tuple);
-    }
-
-    public MonthlyStat getFromDatabase(int locationid, int year, int month) {
-        if (monthlyStatAccessor == null) {
-            return null;
-        }
-
-        return monthlyStatAccessor.get(locationid, MEASUREMENT_ENTITY.TEMPERATURE.value, year, month);
-    }
-
-    public void storeInDatabase(Temperature temperature, MonthlyStat monthlyStat) {
-
-        if (monthlyStatAccessor == null) {
-            return;
-        }
-
-        DateTime date = new DateTime(temperature.getMeasuredtime());
-        monthlyStatAccessor.add(temperature.getLocationid(), MEASUREMENT_ENTITY.TEMPERATURE.value, date.getYear(),
-                date.getMonthOfYear(), //
-                monthlyStat.getAverage(), monthlyStat.getCount(), //
-                monthlyStat.getMax(), monthlyStat.getMaxstationid(), monthlyStat.getMaxtime(), //
-                monthlyStat.getMin(), monthlyStat.getMinstationid(), monthlyStat.getMintime());
     }
 
     public MonthlyStat calculateMonthlyStats(Temperature temperature, MonthlyStat monthlyStat) {

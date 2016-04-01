@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.weather.storm.bolt.utils.AccessorUtil;
+import com.weather.storm.bolt.utils.StorageBoltUtil;
 import com.weather.storm.cassandra.accessor.TemperatureAccessor;
 import com.weather.storm.cassandra.table.Temperature;
 import com.weather.storm.object.TemperatureMsg;
@@ -42,9 +44,7 @@ public class StorageBolt extends BaseCassandraBolt {
     }
 
     private void initAccessors() {
-        if (manager != null) {
-            temperatureAccessor = manager.createAccessor(TemperatureAccessor.class);
-        }
+        temperatureAccessor = AccessorUtil.createTemperatureAccessor(cassandraConnObject.manager);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class StorageBolt extends BaseCassandraBolt {
 
                 if (msg instanceof TemperatureMsg) {
                     TemperatureMsg tempMsg = (TemperatureMsg) msg;
-                    storeInDatabase(tempMsg);
+                    StorageBoltUtil.storeInDatabase(temperatureAccessor, tempMsg);
 
                     Temperature temperature = new Temperature(tempMsg.getLocationId(), tempMsg.getStationId(),
                             new Date(tempMsg.getTimestamp()), tempMsg.getMeasurement());
@@ -70,13 +70,6 @@ public class StorageBolt extends BaseCassandraBolt {
         }
 
         collector.ack(tuple);
-    }
-
-    public void storeInDatabase(TemperatureMsg tempMsg) {
-        if (temperatureAccessor != null) {
-            temperatureAccessor.add(tempMsg.getLocationId(), tempMsg.getStationId(), new Date(tempMsg.getTimestamp()),
-                    tempMsg.getMeasurement());
-        }
     }
 
     @Override
